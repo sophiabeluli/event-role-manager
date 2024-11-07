@@ -23,7 +23,6 @@ let eventsRoles = new Map<string, string>();
 
 const saveFile = () => {
     console.log("saving to file: ");
-    console.log(eventsRoles);
     console.log(JSON.stringify(Object.fromEntries(eventsRoles)));
     fs.writeFileSync(
         file,
