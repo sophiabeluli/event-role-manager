@@ -1,0 +1,13 @@
+{
+    "dependencies": {
+        "discord.js": "^14.16.3",
+        "dotenv": "^16.4.5",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.6.3"
+    },
+    "type": "module",
+    "scripts": {
+        "main": "node --experimental-specifier-resolution=node --loader ts-node/esm src/index.ts",
+        "register": "node --experimental-specifier-resolution=node --loader ts-node/esm src/deploy-commands.js"
+    }
+}
