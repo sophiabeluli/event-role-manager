@@ -7,11 +7,11 @@ const ShipMe: Command = {
         // interaction.user is the object representing the User who ran the command
         // interaction.member is the GuildMember object, which represents the user in the specific guild
         let members = await interaction.guild.members.fetch();
-        members.delete(interaction.user.id);
+        members.delete(interaction.client.user.id); // delete the bot
+        members.delete(interaction.user.id); // delete the user using the command
         const bottom = members.at(Math.floor(Math.random() * members.size));
         await interaction.reply(
-            `I ship ${interaction.user.username}, with ${bottom.user.username}!
-            }.`
+            `I ship ${interaction.user.username}, with ${bottom.user.username}!`
         );
     },
 };
