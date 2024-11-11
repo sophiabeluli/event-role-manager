@@ -123,6 +123,7 @@ client.on(
         guildScheduledEvent.guild.roles
             .create({
                 name: guildScheduledEvent.name,
+                mentionable: true,
                 reason: "for event",
             })
             .then((role) => {
