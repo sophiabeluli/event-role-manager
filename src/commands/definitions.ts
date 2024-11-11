@@ -18,14 +18,9 @@
  * can be found on sophiabeluli.ca
  */
 
-import { Client, ClientOptions, Collection } from "discord.js";
+import { RepliableInteraction, SlashCommandBuilder } from "discord.js";
 
-class CustomClient extends Client {
-    commands: Collection<any, any>;
-    constructor(intents: ClientOptions) {
-        super(intents);
-        this.commands = new Collection();
-    }
+export interface Command {
+    data: SlashCommandBuilder;
+    execute: (interaction: RepliableInteraction) => void;
 }
-
-export default CustomClient;
