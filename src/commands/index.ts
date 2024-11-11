@@ -1,4 +1,5 @@
 import User from "./utility/user";
+import ShipMe from './utility/shipme';
 
-const allCommands = [User];
+const allCommands = [User, ShipMe];
 export default allCommands;
