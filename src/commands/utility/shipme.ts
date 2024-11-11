@@ -11,7 +11,7 @@ const ShipMe: Command = {
         members.delete(interaction.user.id); // delete the user using the command
         const bottom = members.at(Math.floor(Math.random() * members.size));
         await interaction.reply(
-            `I ship ${interaction.user.username}, with ${bottom.user.username}!`
+            `I ship ${interaction.user.username} with ${bottom.user.username}!`
         );
     },
 };
