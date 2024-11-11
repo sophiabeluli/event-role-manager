@@ -22,13 +22,13 @@ const token = process.env.TOKEN;
 let eventsRoles = new Map<string, string>();
 
 const saveFile = () => {
-    console.log("saving to file: ");
     console.log(JSON.stringify(Object.fromEntries(eventsRoles)));
     fs.writeFileSync(
         file,
         JSON.stringify(Object.fromEntries(eventsRoles)),
         "utf8"
     );
+    console.log("file updated");
 };
 
 // Create a new client instance
@@ -129,15 +129,13 @@ client.on(
                 console.log("role created: " + role.id);
                 eventsRoles.set(guildScheduledEvent.id, role.id);
                 // add role to creator
-                console.log("event: " + guildScheduledEvent);
-                console.log("event id: " + guildScheduledEvent.id);
-                console.log("event creator: " + guildScheduledEvent.creator);
-                console.log("event status: " + guildScheduledEvent.status);
-                // guildScheduledEvent.guild.members.addRole({
-                //     role: role,
-                //     user: guildScheduledEvent.creator,
-                // });
-                // console.log("hi added role to creator");
+                guildScheduledEvent.guild.members.addRole({
+                    role: role,
+                    user: guildScheduledEvent.creatorId,
+                });
+                console.log(
+                    "added role to creator: " + guildScheduledEvent.creatorId
+                );
                 saveFile();
             })
             .catch(console.error);
@@ -204,15 +202,14 @@ client.on(
             | PartialGuildScheduledEvent,
         user: User
     ): void => {
-        console.log(
-            "user subscribing: " + user + " - " + guildScheduledEvent.id
-        );
-        console.log("role id: " + eventsRoles.get(guildScheduledEvent.id));
         if (eventsRoles.get(guildScheduledEvent.id)) {
             guildScheduledEvent.guild.members.addRole({
                 role: eventsRoles.get(guildScheduledEvent.id),
                 user: user,
             });
+            console.log(
+                "user subscribed: " + user + " - " + guildScheduledEvent.id
+            );
         }
     }
 );
@@ -225,14 +222,14 @@ client.on(
             | PartialGuildScheduledEvent,
         user: User
     ): void => {
-        console.log(
-            "user unsubscribed: " + user + " - " + guildScheduledEvent.id
-        );
         if (eventsRoles.get(guildScheduledEvent.id)) {
             guildScheduledEvent.guild.members.removeRole({
                 role: eventsRoles.get(guildScheduledEvent.id),
                 user: user,
             });
+            console.log(
+                "user unsubscribed: " + user + " - " + guildScheduledEvent.id
+            );
         }
     }
 );
