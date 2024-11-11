@@ -24,13 +24,3 @@ GUILD_ID="your-server-id-here"
 - `npm run main` to start the application
 
 You can add new slash commands by following the example in `src/commands/utility/user.ts` (the bot setup guide also shows you how). Make sure to export it in `src/commands/index.ts` and re-register with `npm run register` before testing or it won't work!
-
----
-## TODO
-
-### Known Issues
-- Reoccuring events are untested
-
-### Future Features
-
-- Displaying info for recently finished events (slash command)
