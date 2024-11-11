@@ -29,4 +29,4 @@ You can add new slash commands by following the example in `src/commands/utility
 Feel free to contribute and help make this bot better with bug fixes, new features, etc!
 - You can report bugs or request new features for yourself or others to work on in the issues tab.
 - Make pull requests (PRs) to merge into dev or another feature branch.
-- ***Main is locked for editing*** This bot automatically manages roles, which means it can cause some havoc. I will be testing code on dev before pushing to prod to ensure there's no issues.
+- ***Main is locked for editing.*** This bot automatically manages roles, which means it can cause some havoc. I will be testing code on dev before pushing to prod to ensure there's no issues.
