@@ -1,4 +1,4 @@
-# Discord Event Role Manager [WIP]
+# Discord Event Role Manager
 
 A role manager bot for discord that deals exclusively with managing roles for events.
 
@@ -6,10 +6,31 @@ A role manager bot for discord that deals exclusively with managing roles for ev
 -   Assigns role to users who tick interested, and unassigns role when they untick.
 -   Roles have the same name as the event for easy searching/pinging.
 
+## Installation
+Use the link below to add sophbot to your server:
+https://discord.com/oauth2/authorize?client_id=834955651796828190
+
+## Development Setup
+- Set up your own tester bot. Instructions here: https://discordjs.guide/preparations/setting-up-a-bot-application.html
+- Download the repository
+- Make an .env file with your bot's TOKEN and CLIENT_ID, and the GUILD_ID for the server you will be testing in. Like this:
+```.env
+TOKEN="your-token-here"
+CLIENT_ID="your-client-id-here"
+GUILD_ID="your-server-id-here"
+```
+- `npm install`
+- `npm run register` to register the slash commands to your server
+- `npm run main` to start the application
+
+You can add new slash commands by following the example in `src/commands/utility/user.ts` (the bot setup guide also shows you how). Make sure to export it in `src/commands/index.ts` and re-register with `npm run register` before testing or it won't work!
+
 ---
-## Known Issues
+## TODO
+
+### Known Issues
 - Reoccuring events are untested
 
-## Future Features
+### Future Features
 
--   Displaying info for recently finished events (slash command)
+- Displaying info for recently finished events (slash command)
