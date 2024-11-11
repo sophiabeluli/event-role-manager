@@ -7,6 +7,8 @@ A role manager bot for discord that deals exclusively with managing roles for ev
 -   Roles have the same name as the event for easy searching/pinging.
 
 ---
+## Known Issues
+- Reoccuring events are untested
 
 ## Future Features
 
