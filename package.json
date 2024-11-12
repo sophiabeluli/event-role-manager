@@ -9,6 +9,9 @@
     "type": "module",
     "scripts": {
         "main": "node --experimental-specifier-resolution=node --loader ts-node/esm src/index.ts",
-        "register": "node --experimental-specifier-resolution=node --loader ts-node/esm src/deploy-commands.js"
+        "register:dev": "node --experimental-specifier-resolution=node --loader ts-node/esm src/scripts/deploy-commands-dev.js",
+        "register:prod": "node --experimental-specifier-resolution=node --loader ts-node/esm src/scripts/deploy-commands-prod.js",
+        "unregister": "node --experimental-specifier-resolution=node --loader ts-node/esm src/scripts/remove-guild-commands.js",
+        "screen": "screen -S sophbot npm run main"
     }
 }
