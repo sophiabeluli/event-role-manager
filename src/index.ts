@@ -75,12 +75,11 @@ const updateEventsRoles = async () => {
         // checks events in file and sees if they exist in any guild
         // deletes them from file if not
         .then((allEvents) => {
-            deleteMissedEvents(allEvents);
-        })
-        .then(() => {
-            saveFile();
-            console.log("end initial routine");
-            isReady = true;
+            deleteMissedEvents(allEvents).then(() => {
+                saveFile();
+                console.log("end initial routine");
+                isReady = true;
+            });
         });
 };
 
@@ -165,20 +164,28 @@ const addMissedEvents = async (allEvents: string[]): Promise<string[]> => {
     return allEvents;
 };
 
-const deleteMissedEvents = async (allEvents: string[]): Promise<string[]> => {
+const deleteMissedEvents = async (
+    allEvents: string[]
+): Promise<Map<string, eventsRolesInfo>> => {
     for (const eventInfo of eventsRoles) {
         if (!allEvents.includes(eventInfo[0])) {
-            const targetGuild = await client.guilds.fetch(eventInfo[1].guild);
-            targetGuild.roles
-                .delete(eventInfo[1].role)
-                .then(() => {
+            try {
+                const targetGuild = await client.guilds.fetch(
+                    eventInfo[1].guild
+                );
+                try {
+                    await targetGuild.roles.delete(eventInfo[1].role);
                     console.log("incorrect role deleted: " + eventInfo[1].role);
                     eventsRoles.delete(eventInfo[0]);
-                })
-                .catch(console.error);
+                } catch (err) {
+                    console.error(err);
+                }
+            } catch (err) {
+                console.error(err);
+            }
         }
     }
-    return allEvents;
+    return eventsRoles;
 };
 
 const onCreateEvent = async (
@@ -357,7 +364,7 @@ client.on(
                         newGuildScheduledEvent.status === 4) &&
                     eventsRoles.get(newGuildScheduledEvent.id)
                 ) {
-                    console.log("event deleted");
+                    console.log("event canceled");
                     // complete or canceled
                     newGuildScheduledEvent.guild.roles
                         .delete(eventsRoles.get(newGuildScheduledEvent.id).role)
