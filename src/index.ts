@@ -94,13 +94,16 @@ const addMissedEvents = async (allEvents: string[]): Promise<string[]> => {
                 let role: string;
                 if (!eventsRoles.get(id)) {
                     // make role if it doesn't exist
+                    console.log('role doesnt exist; creating');
                     role = await onCreateEvent(event);
                 } else {
+                    console.log('role exists');
                     role = eventsRoles.get(id).role;
                 }
 
                 if (!role) {
                     // exit if role null
+                    console.log('role null; exiting');
                     return;
                 }
 
@@ -114,10 +117,8 @@ const addMissedEvents = async (allEvents: string[]): Promise<string[]> => {
                     for (const [id, user] of subscribers) {
                         unsubscribedMembers.delete(id);
                         // add roles only to those who have don't have them and should
-                        if (
-                            user.member &&
-                            !(user.member as GuildMember).roles.resolve(role)
-                        ) {
+                        const member = guild.members.cache.find(member => member.user.id === id);
+                        if (!member.roles.resolve(role)) {
                             try {
                                 let res = await guild.members.addRole({
                                     role: role,
