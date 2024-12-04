@@ -4,3 +4,4 @@ package-lock.json
 config.json
 **/saved.json
 **/.saved.json
+**/secret-**.json
