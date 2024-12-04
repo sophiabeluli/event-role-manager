@@ -47,6 +47,16 @@ export interface eventsRolesInfo {
     scheduledStartAt: Date;
 }
 
+export interface EventDetails {
+    title: string;
+    description: string;
+    scheduledStartAt: Date;
+    scheduledEndAt: Date;
+    subscriberNum: number;
+    location: string;
+    imageURL: string;
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const fileName = "saved.json";
@@ -56,7 +66,6 @@ let eventsRoles = new Map<string, eventsRolesInfo>();
 let isReady = true; // flag to determine
 
 const saveFile = () => {
-    // console.log(JSON.stringify(Object.fromEntries(eventsRoles)));
     fs.writeFileSync(
         file,
         JSON.stringify(Object.fromEntries(eventsRoles)),
@@ -94,16 +103,16 @@ const addMissedEvents = async (allEvents: string[]): Promise<string[]> => {
                 let role: string;
                 if (!eventsRoles.get(id)) {
                     // make role if it doesn't exist
-                    console.log('role doesnt exist; creating');
+                    console.log("role doesnt exist; creating");
                     role = await onCreateEvent(event);
                 } else {
-                    console.log('role exists');
+                    console.log("role exists");
                     role = eventsRoles.get(id).role;
                 }
 
                 if (!role) {
                     // exit if role null
-                    console.log('role null; exiting');
+                    console.log("role null; exiting");
                     return;
                 }
 
@@ -117,7 +126,9 @@ const addMissedEvents = async (allEvents: string[]): Promise<string[]> => {
                     for (const [id, user] of subscribers) {
                         unsubscribedMembers.delete(id);
                         // add roles only to those who have don't have them and should
-                        const member = guild.members.cache.find(member => member.user.id === id);
+                        const member = guild.members.cache.find(
+                            (member) => member.user.id === id
+                        );
                         if (!member.roles.resolve(role)) {
                             try {
                                 let res = await guild.members.addRole({
@@ -227,6 +238,69 @@ const onCreateEvent = async (
             console.error(err);
             return null;
         });
+};
+
+const loadPreviousEvents = (guildId: string): Array<EventDetails> => {
+    const fileName = "secret-" + guildId + ".json";
+    const file = __dirname + "/" + fileName;
+
+    // Load Data
+    if (!fs.existsSync(file)) {
+        console.warn("Event secret file doesnt exist");
+        const content = JSON.stringify([]);
+        try {
+            fs.writeFileSync(file, content, "utf8");
+        } catch (err) {
+            console.error(err);
+        }
+    }
+    try {
+        let previousEvents: Array<EventDetails> = JSON.parse(
+            fs.readFileSync(file, "utf8")
+        );
+        return previousEvents;
+    } catch (err) {
+        console.error(err);
+        return [];
+    }
+};
+
+const writePreviousEvents = (
+    guildId: string,
+    savedEvents: Array<EventDetails>
+) => {
+    const fileName = "secret-" + guildId + ".json";
+    const file = __dirname + "/" + fileName;
+    try {
+        fs.writeFileSync(file, JSON.stringify(savedEvents), "utf8");
+    } catch (err) {
+        console.error(err);
+    }
+    console.log(guildId + "event secret file updated");
+};
+
+const saveFinishedEvent = (event: GuildScheduledEvent) => {
+    console.log("saving finished event from " + event.guild.name);
+    const guildId = event.guild.id;
+    const savedEvents = loadPreviousEvents(guildId);
+    if (savedEvents.length === 5) {
+        savedEvents.shift();
+    }
+    try {
+        savedEvents.push({
+            title: event.name,
+            description: event.description,
+            scheduledStartAt: event.scheduledStartAt,
+            scheduledEndAt: event.scheduledEndAt,
+            subscriberNum: event.userCount || 1,
+            location: event.entityMetadata?.location,
+            imageURL: event.coverImageURL({ extension: "png", size: 4096 }),
+        });
+    } catch (err) {
+        console.error(err);
+    }
+
+    writePreviousEvents(guildId, savedEvents);
 };
 
 // Create a new client instance
@@ -386,6 +460,10 @@ client.on(
             }
         };
         updateEvent();
+
+        if (newGuildScheduledEvent.status === 3) {
+            saveFinishedEvent(newGuildScheduledEvent);
+        }
     }
 );
 
