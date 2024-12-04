@@ -284,7 +284,7 @@ const saveFinishedEvent = (event: GuildScheduledEvent) => {
     const guildId = event.guild.id;
     const savedEvents = loadPreviousEvents(guildId);
     if (savedEvents.length === 5) {
-        savedEvents.pop();
+        savedEvents.shift();
     }
     try {
         savedEvents.push({
