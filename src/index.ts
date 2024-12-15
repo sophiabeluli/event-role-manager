@@ -237,7 +237,7 @@ const onCreateEvent = async (
             saveFile();
             return role.id;
         })
-        .catch((err: any) => {
+        .catch((err): Promise<string> => {
             console.error(err);
             return null;
         });
