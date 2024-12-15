@@ -18,12 +18,13 @@ const backId = "back";
 const forwardId = "forward";
 const backButton = new ButtonBuilder({
     style: 2,
-    label: "🡸",
+    label: "◀",
     customId: backId,
+    disabled: true,
 });
 const forwardButton = new ButtonBuilder({
     style: 2,
-    label: "🡺",
+    label: "▶",
     customId: forwardId,
 });
 
@@ -171,9 +172,9 @@ export const listPreviousEvents = async (interaction: RepliableInteraction) => {
         const response = await interaction.editReply({
             embeds: [pageArray[0]],
             components: [
-                new ActionRowBuilder<ButtonBuilder>().addComponents([
-                    forwardButton,
-                ]),
+                new ActionRowBuilder<ButtonBuilder>()
+                    .addComponents([backButton])
+                    .addComponents([forwardButton]),
             ],
         });
 
@@ -185,18 +186,27 @@ export const listPreviousEvents = async (interaction: RepliableInteraction) => {
             });
 
             collector.on("collect", async (i) => {
-                i.customId === backId ? currentIndex-- : currentIndex++;
+                i.customId === backId ? currentIndex-- : currentIndex++; // update page index
+
+                // set button disabled state
+                if (currentIndex) {
+                    backButton.setDisabled(false);
+                } else {
+                    backButton.setDisabled(true);
+                }
+                if (currentIndex < pageArray.length - 1) {
+                    forwardButton.setDisabled(false);
+                } else {
+                    forwardButton.setDisabled(true);
+                }
+
                 await i
                     .update({
                         embeds: [pageArray[currentIndex]],
                         components: [
                             new ActionRowBuilder<ButtonBuilder>()
-                                .addComponents(currentIndex ? [backButton] : [])
-                                .addComponents(
-                                    currentIndex < pageArray.length - 1
-                                        ? [forwardButton]
-                                        : []
-                                ),
+                                .addComponents([backButton])
+                                .addComponents([forwardButton]),
                         ],
                     })
                     .catch((err) => {
