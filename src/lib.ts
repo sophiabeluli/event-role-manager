@@ -116,6 +116,18 @@ export const writePreviousEvents = (
 export const listPreviousEvents = async (interaction: RepliableInteraction) => {
     let pageArray: APIEmbed[] = [];
     const events = loadPreviousEvents(interaction.guildId);
+
+    if (events.length === 0) {
+        try {
+            interaction.editReply({
+                content: "There are no logged previous events.",
+                components: [],
+            });
+            return;
+        } catch (err) {
+            console.error(err);
+        }
+    }
     events.forEach((event, _index) => {
         let page: APIEmbed = {
             title: event.title,
