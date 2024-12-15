@@ -27,6 +27,7 @@ import {
     GuildScheduledEvent,
     GuildScheduledEventStatus,
     PartialGuildScheduledEvent,
+    RepliableInteraction,
     User,
 } from "discord.js";
 import "dotenv/config";
@@ -35,6 +36,8 @@ import allCommands from "./commands";
 import fs from "node:fs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import pubsub from "pubsub-js";
+import { listPreviousEvents, saveFinishedEvent } from "./lib";
 
 export interface eventsRolesInfo {
     // for lookup
@@ -240,67 +243,15 @@ const onCreateEvent = async (
         });
 };
 
-const loadPreviousEvents = (guildId: string): Array<EventDetails> => {
-    const fileName = "secret-" + guildId + ".json";
-    const file = __dirname + "/" + fileName;
+// Pubsub
 
-    // Load Data
-    if (!fs.existsSync(file)) {
-        console.warn("Event secret file doesnt exist");
-        const content = JSON.stringify([]);
-        try {
-            fs.writeFileSync(file, content, "utf8");
-        } catch (err) {
-            console.error(err);
+const subscribe = () => {
+    pubsub.subscribe(
+        "pastevents",
+        (_msg, interaction: RepliableInteraction) => {
+            listPreviousEvents(interaction);
         }
-    }
-    try {
-        let previousEvents: Array<EventDetails> = JSON.parse(
-            fs.readFileSync(file, "utf8")
-        );
-        return previousEvents;
-    } catch (err) {
-        console.error(err);
-        return [];
-    }
-};
-
-const writePreviousEvents = (
-    guildId: string,
-    savedEvents: Array<EventDetails>
-) => {
-    const fileName = "secret-" + guildId + ".json";
-    const file = __dirname + "/" + fileName;
-    try {
-        fs.writeFileSync(file, JSON.stringify(savedEvents), "utf8");
-    } catch (err) {
-        console.error(err);
-    }
-    console.log(guildId + "event secret file updated");
-};
-
-const saveFinishedEvent = (event: GuildScheduledEvent) => {
-    console.log("saving finished event from " + event.guild.name);
-    const guildId = event.guild.id;
-    const savedEvents = loadPreviousEvents(guildId);
-    if (savedEvents.length === 5) {
-        savedEvents.shift();
-    }
-    try {
-        savedEvents.push({
-            title: event.name,
-            description: event.description,
-            scheduledStartAt: event.scheduledStartAt,
-            scheduledEndAt: event.scheduledEndAt,
-            subscriberNum: event.userCount || 1,
-            location: event.entityMetadata?.location,
-            imageURL: event.coverImageURL({ extension: "png", size: 4096 }),
-        });
-    } catch (err) {
-        console.error(err);
-    }
-
-    writePreviousEvents(guildId, savedEvents);
+    );
 };
 
 // Create a new client instance
@@ -324,6 +275,8 @@ for (const command of allCommands) {
 // It makes some properties non-nullable.
 client.once(Events.ClientReady, (readyClient) => {
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+
+    subscribe();
 
     // Load Data
     if (!fs.existsSync(file)) {

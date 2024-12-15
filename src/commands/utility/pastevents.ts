@@ -18,9 +18,22 @@
  * can be found on sophiabeluli.ca
  */
 
-import User from "./utility/user";
-import ShipMe from "./utility/shipme";
-import PastEvents from "./utility/pastevents";
+import {
+    RepliableInteraction,
+    SlashCommandBuilder,
+    // APIEmbed,
+} from "discord.js";
+import { Command } from "../definitions";
+// import { loadPreviousEvents } from "../..";
+import pubsub from "pubsub-js";
 
-const allCommands = [User, ShipMe, PastEvents];
-export default allCommands;
+const PastEvents: Command = {
+    data: new SlashCommandBuilder()
+        .setName("pastevents")
+        .setDescription("Lists details of the past 5 events in the server."),
+    async execute(interaction: RepliableInteraction) {
+        await interaction.deferReply();
+        pubsub.publish("pastevents", interaction);
+    },
+};
+export default PastEvents;
