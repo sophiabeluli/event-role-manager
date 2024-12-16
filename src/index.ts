@@ -65,7 +65,7 @@ const __dirname = dirname(__filename);
 const fileName = "saved.json";
 const file = __dirname + "/" + fileName;
 const token = process.env.TOKEN;
-let eventsRoles = new Map<string, eventsRolesInfo>();
+let eventsRoles = new Map<string, eventsRolesInfo>(); // event id -> eventsRolesInfo
 let isReady = true; // flag to determine
 
 const saveFile = () => {
@@ -379,7 +379,7 @@ client.on(
 client.on(
     Events.GuildScheduledEventUpdate,
     async (
-        _oldGuildScheduledEvent:
+        oldGuildScheduledEvent:
             | GuildScheduledEvent<GuildScheduledEventStatus>
             | PartialGuildScheduledEvent,
         newGuildScheduledEvent: GuildScheduledEvent
@@ -406,6 +406,29 @@ client.on(
                             saveFile();
                         })
                         .catch(console.error);
+                } else if (
+                    oldGuildScheduledEvent.name !== newGuildScheduledEvent.name
+                ) {
+                    const eventRoleInfo = eventsRoles.get(
+                        newGuildScheduledEvent.id
+                    );
+                    if (eventRoleInfo) {
+                        newGuildScheduledEvent.guild.roles
+                            .edit(eventRoleInfo.role, {
+                                name: newGuildScheduledEvent.name,
+                            })
+                            .then(() => {
+                                console.log(
+                                    "role edited: " + eventRoleInfo.role
+                                );
+                                eventsRoles.set(newGuildScheduledEvent.id, {
+                                    ...eventRoleInfo,
+                                    name: newGuildScheduledEvent.name,
+                                });
+                                saveFile();
+                            })
+                            .catch(console.error);
+                    }
                 }
             } else if (count !== 6) {
                 count++;
