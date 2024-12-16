@@ -170,7 +170,7 @@ export const listPreviousEvents = async (interaction: RepliableInteraction) => {
 
     try {
         const response = await interaction.editReply({
-            embeds: [pageArray[0]],
+            embeds: [pageArray[4]],
             components: [
                 new ActionRowBuilder<ButtonBuilder>()
                     .addComponents([backButton])
@@ -179,22 +179,28 @@ export const listPreviousEvents = async (interaction: RepliableInteraction) => {
         });
 
         try {
-            let currentIndex = 0;
+            // the array is sorted from oldest to most recent
+            // (for ease of being able to use shift/push functions),
+            // but we want to display most recent to oldest.
+            // we must iterate through the array BACKWARDS
+            // back button -> index++
+            // forward button -> index--
+            let currentIndex = 4;
             const collector = response.createMessageComponentCollector({
                 componentType: ComponentType.Button,
                 time: 3_600_000,
             });
 
             collector.on("collect", async (i) => {
-                i.customId === backId ? currentIndex-- : currentIndex++; // update page index
+                i.customId === backId ? currentIndex++ : currentIndex--; // update page index
 
                 // set button disabled state
-                if (currentIndex) {
+                if (currentIndex < pageArray.length - 1) {
                     backButton.setDisabled(false);
                 } else {
                     backButton.setDisabled(true);
                 }
-                if (currentIndex < pageArray.length - 1) {
+                if (currentIndex) {
                     forwardButton.setDisabled(false);
                 } else {
                     forwardButton.setDisabled(true);
@@ -213,11 +219,8 @@ export const listPreviousEvents = async (interaction: RepliableInteraction) => {
                         console.error(err);
                     });
             });
-        } catch (e) {
-            await interaction.editReply({
-                content: "Confirmation not received within 1 hour, cancelling",
-                components: [],
-            });
+        } catch (err) {
+            console.error(err);
         }
     } catch (err) {
         console.error(err);
