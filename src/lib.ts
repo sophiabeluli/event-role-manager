@@ -170,7 +170,7 @@ export const listPreviousEvents = async (interaction: RepliableInteraction) => {
 
     try {
         const response = await interaction.editReply({
-            embeds: [pageArray[4]],
+            embeds: [pageArray[pageArray.length - 1]],
             components: [
                 new ActionRowBuilder<ButtonBuilder>()
                     .addComponents([backButton])
@@ -185,7 +185,7 @@ export const listPreviousEvents = async (interaction: RepliableInteraction) => {
             // we must iterate through the array BACKWARDS
             // back button -> index++
             // forward button -> index--
-            let currentIndex = 4;
+            let currentIndex = pageArray.length - 1;
             const collector = response.createMessageComponentCollector({
                 componentType: ComponentType.Button,
                 time: 3_600_000,
