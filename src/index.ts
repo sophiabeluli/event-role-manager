@@ -109,7 +109,7 @@ const addMissedEvents = async (allEvents: string[]): Promise<string[]> => {
                     console.log("role doesnt exist; creating");
                     role = await onCreateEvent(event);
                 } else {
-                    console.log("role exists");
+                    console.log("role exists for " + event.name);
                     role = eventsRoles.get(id).role;
                 }
 
@@ -190,11 +190,11 @@ const deleteMissedEvents = async (
                 );
                 try {
                     await targetGuild.roles.delete(eventInfo[1].role);
-                    console.log("incorrect role deleted: " + eventInfo[1].role);
-                    eventsRoles.delete(eventInfo[0]);
                 } catch (err) {
                     console.error(err);
                 }
+                console.log("incorrect role deleted: " + eventInfo[1].role);
+                eventsRoles.delete(eventInfo[0]);
             } catch (err) {
                 console.error(err);
             }
@@ -230,7 +230,7 @@ const onCreateEvent = async (
                 .then(() =>
                     console.log(
                         "added role to creator: " +
-                            guildScheduledEvent.creatorId
+                        guildScheduledEvent.creatorId
                     )
                 )
                 .catch(console.error);
@@ -360,7 +360,7 @@ client.on(
                         .then(() => {
                             console.log(
                                 "role deleted: " +
-                                    eventsRoles.get(guildScheduledEvent.id).role
+                                eventsRoles.get(guildScheduledEvent.id).role
                             );
                             eventsRoles.delete(guildScheduledEvent.id);
                             saveFile();
@@ -399,8 +399,8 @@ client.on(
                         .then(() => {
                             console.log(
                                 "role deleted: " +
-                                    eventsRoles.get(newGuildScheduledEvent.id)
-                                        .role
+                                eventsRoles.get(newGuildScheduledEvent.id)
+                                    .role
                             );
                             eventsRoles.delete(newGuildScheduledEvent.id);
                             saveFile();
@@ -463,9 +463,9 @@ client.on(
                         .then(() =>
                             console.log(
                                 "user subscribed: " +
-                                    user.username +
-                                    " - " +
-                                    guildScheduledEvent.id
+                                user.username +
+                                " - " +
+                                guildScheduledEvent.id
                             )
                         )
                         .catch(console.error);
@@ -499,9 +499,9 @@ client.on(
                         .then(() =>
                             console.log(
                                 "user unsubscribed: " +
-                                    user.username +
-                                    " - " +
-                                    guildScheduledEvent.id
+                                user.username +
+                                " - " +
+                                guildScheduledEvent.id
                             )
                         )
                         .catch(console.error);
