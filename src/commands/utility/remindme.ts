@@ -38,11 +38,11 @@ const RemindMe: Command = {
                 .setDescription("The message to send")
                 .setRequired(true)
         )
-        .addStringOption((option) =>
+        .addNumberOption((option) =>
             option
-                .setName("time")
+                .setName("hours")
                 .setDescription(
-                    "How far in the future you want to be reminded **IN HOURS. Default: 1"
+                    "How many hours in the future you want to be reminded. Default: 1"
                 )
         )
         .addChannelOption((option) =>
@@ -57,13 +57,13 @@ const RemindMe: Command = {
     async execute(interaction: ChatInputCommandInteraction) {
         const userId = interaction.user.id;
         const message = interaction.options.getString("message");
-        const time = Number(interaction.options.getString("time") ?? 1);
+        const hours = interaction.options.getNumber("hours") ?? 1;
         const channel =
             (interaction.options.getChannel(
                 "channel"
             ) as GuildTextBasedChannel) ?? interaction.channel;
 
-        const data: RemindMeData = { userId, message, time, channel };
+        const data: RemindMeData = { userId, message, hours, channel };
 
         pubsub.publish("remindme", data);
 
@@ -82,7 +82,7 @@ const RemindMe: Command = {
                 },
                 {
                     name: "Time",
-                    value: `${time} hours`,
+                    value: `${hours} hours`,
                 },
                 {
                     name: "Channel",
