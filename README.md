@@ -13,7 +13,7 @@ https://discord.com/oauth2/authorize?client_id=834955651796828190
 
 ## Development Setup
 
--   Set up your own tester bot. Instructions here: https://discordjs.guide/preparations/setting-up-a-bot-application.html
+-   Set up your own tester bot. Instructions here: https://www.discordjs.guide/legacy/preparations/app-setup
 -   Download the repository and switch to the dev branch (or make a new feature branch)
 -   Make an .env file with your bot's TOKEN and CLIENT_ID, and the GUILD_ID for the server you will be testing in. Like this:
 

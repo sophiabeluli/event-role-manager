@@ -26,6 +26,7 @@ import {
     GuildMember,
     GuildScheduledEvent,
     GuildScheduledEventStatus,
+    OAuth2Guild,
     PartialGuildScheduledEvent,
     RepliableInteraction,
     User,
@@ -38,6 +39,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import pubsub from "pubsub-js";
 import { listPreviousEvents, saveFinishedEvent } from "./lib";
+import { RemindMeData } from "./commands/definitions";
 
 export interface eventsRolesInfo {
     // for lookup
@@ -97,6 +99,7 @@ const updateEventsRoles = async () => {
 
 const addMissedEvents = async (allEvents: string[]): Promise<string[]> => {
     const guilds = await client.guilds.fetch();
+    printGuilds(guilds);
     for (const guildInfo of guilds) {
         try {
             const guild = await guildInfo[1].fetch();
@@ -230,7 +233,7 @@ const onCreateEvent = async (
                 .then(() =>
                     console.log(
                         "added role to creator: " +
-                        guildScheduledEvent.creatorId
+                            guildScheduledEvent.creatorId
                     )
                 )
                 .catch(console.error);
@@ -252,6 +255,19 @@ const subscribe = () => {
             listPreviousEvents(interaction);
         }
     );
+    pubsub.subscribe("remindme", (_msg, data: RemindMeData) => {
+        const { userId, message, time, channel } = data;
+        setTimeout(() => {
+            channel.send(`**Reminder** for <@${userId}>:\n${message}`);
+        }, time * 3600000);
+    });
+};
+
+const printGuilds = (guilds: Collection<string, OAuth2Guild>) => {
+    console.log("Guilds:");
+    guilds.forEach((guild) => {
+        console.log(guild.name + ": " + guild.id);
+    });
 };
 
 // Create a new client instance
@@ -360,7 +376,7 @@ client.on(
                         .then(() => {
                             console.log(
                                 "role deleted: " +
-                                eventsRoles.get(guildScheduledEvent.id).role
+                                    eventsRoles.get(guildScheduledEvent.id).role
                             );
                             eventsRoles.delete(guildScheduledEvent.id);
                             saveFile();
@@ -399,8 +415,8 @@ client.on(
                         .then(() => {
                             console.log(
                                 "role deleted: " +
-                                eventsRoles.get(newGuildScheduledEvent.id)
-                                    .role
+                                    eventsRoles.get(newGuildScheduledEvent.id)
+                                        .role
                             );
                             eventsRoles.delete(newGuildScheduledEvent.id);
                             saveFile();
@@ -463,9 +479,9 @@ client.on(
                         .then(() =>
                             console.log(
                                 "user subscribed: " +
-                                user.username +
-                                " - " +
-                                guildScheduledEvent.id
+                                    user.username +
+                                    " - " +
+                                    guildScheduledEvent.id
                             )
                         )
                         .catch(console.error);
@@ -499,9 +515,9 @@ client.on(
                         .then(() =>
                             console.log(
                                 "user unsubscribed: " +
-                                user.username +
-                                " - " +
-                                guildScheduledEvent.id
+                                    user.username +
+                                    " - " +
+                                    guildScheduledEvent.id
                             )
                         )
                         .catch(console.error);

@@ -18,9 +18,16 @@
  * can be found on sophiabeluli.ca
  */
 
-import { RepliableInteraction, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, GuildTextBasedChannel, RepliableInteraction, SlashCommandBuilder, SlashCommandOptionsOnlyBuilder } from "discord.js";
 
 export interface Command {
-    data: SlashCommandBuilder;
-    execute: (interaction: RepliableInteraction) => void;
+    data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
+    execute: ((interaction: RepliableInteraction) => void) | ((interaction: ChatInputCommandInteraction) => void);
+}
+
+export interface RemindMeData {
+    userId: string,
+    message: string,
+    time: number,
+    channel: GuildTextBasedChannel
 }
