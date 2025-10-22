@@ -26,6 +26,7 @@ import {
     GuildMember,
     GuildScheduledEvent,
     GuildScheduledEventStatus,
+    OAuth2Guild,
     PartialGuildScheduledEvent,
     RepliableInteraction,
     User,
@@ -38,6 +39,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import pubsub from "pubsub-js";
 import { listPreviousEvents, saveFinishedEvent } from "./lib";
+import { RemindMeData } from "./commands/definitions";
 
 export interface eventsRolesInfo {
     // for lookup
@@ -97,6 +99,7 @@ const updateEventsRoles = async () => {
 
 const addMissedEvents = async (allEvents: string[]): Promise<string[]> => {
     const guilds = await client.guilds.fetch();
+    printGuilds(guilds);
     for (const guildInfo of guilds) {
         try {
             const guild = await guildInfo[1].fetch();
@@ -109,7 +112,7 @@ const addMissedEvents = async (allEvents: string[]): Promise<string[]> => {
                     console.log("role doesnt exist; creating");
                     role = await onCreateEvent(event);
                 } else {
-                    console.log("role exists");
+                    console.log("role exists for " + event.name);
                     role = eventsRoles.get(id).role;
                 }
 
@@ -190,11 +193,11 @@ const deleteMissedEvents = async (
                 );
                 try {
                     await targetGuild.roles.delete(eventInfo[1].role);
-                    console.log("incorrect role deleted: " + eventInfo[1].role);
-                    eventsRoles.delete(eventInfo[0]);
                 } catch (err) {
                     console.error(err);
                 }
+                console.log("incorrect role deleted: " + eventInfo[1].role);
+                eventsRoles.delete(eventInfo[0]);
             } catch (err) {
                 console.error(err);
             }
@@ -252,6 +255,19 @@ const subscribe = () => {
             listPreviousEvents(interaction);
         }
     );
+    pubsub.subscribe("remindme", (_msg, data: RemindMeData) => {
+        const { userId, message, time, channel } = data;
+        setTimeout(() => {
+            channel.send(`**Reminder** for <@${userId}>:\n${message}`);
+        }, time * 3600000);
+    });
+};
+
+const printGuilds = (guilds: Collection<string, OAuth2Guild>) => {
+    console.log("Guilds:");
+    guilds.forEach((guild) => {
+        console.log(guild.name + ": " + guild.id);
+    });
 };
 
 // Create a new client instance
