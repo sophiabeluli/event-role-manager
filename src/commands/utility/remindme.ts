@@ -52,7 +52,7 @@ const RemindMe: Command = {
             option
                 .setName("time_units")
                 .setDescription(
-                    "The units of time you want to input. Default: Hours"
+                    "The units of the time you want to input. Default: hours"
                 )
                 .setChoices(
                     { name: "minutes", value: 60000 },
@@ -64,7 +64,7 @@ const RemindMe: Command = {
             option
                 .setName("time")
                 .setDescription(
-                    "How far in the future you want to be reminded. Default: 1"
+                    "How far in the future you want to be reminded, in time_units. Default: 1"
                 )
                 .setMaxValue(99)
                 .setMinValue(0)
@@ -73,7 +73,7 @@ const RemindMe: Command = {
             option
                 .setName("channel")
                 .setDescription(
-                    "The channel to ping in. Default: Current Channel"
+                    "The channel to remind you in. Default: Current Channel"
                 )
                 // Ensure the user can only select a TextChannel for output
                 .addChannelTypes(ChannelType.GuildText)
