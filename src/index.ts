@@ -256,12 +256,12 @@ const subscribe = () => {
         }
     );
     pubsub.subscribe("remindme", (_msg, data: RemindMeData) => {
-        const { userId, message, hours, channel } = data;
+        const { userId, message, timeMult, time, channel } = data;
         setTimeout(() => {
             channel
                 .send(`**Reminder** for <@${userId}>:\n${message}`)
                 .catch(console.error);
-        }, hours * 3600000);
+        }, time * timeMult);
     });
 };
 
