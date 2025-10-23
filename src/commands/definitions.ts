@@ -36,6 +36,7 @@ export interface Command {
 export interface RemindMeData {
     userId: string;
     message: string;
-    hours: number;
+    timeMult: number;
+    time: number;
     channel: GuildTextBasedChannel;
 }

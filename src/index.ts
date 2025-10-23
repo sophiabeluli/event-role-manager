@@ -256,10 +256,12 @@ const subscribe = () => {
         }
     );
     pubsub.subscribe("remindme", (_msg, data: RemindMeData) => {
-        const { userId, message, hours, channel } = data;
+        const { userId, message, timeMult, time, channel } = data;
         setTimeout(() => {
-            channel.send(`**Reminder** for <@${userId}>:\n${message}`);
-        }, hours * 3600000);
+            channel
+                .send(`**Reminder** for <@${userId}>:\n${message}`)
+                .catch(console.error);
+        }, time * timeMult);
     });
 };
 
@@ -307,36 +309,45 @@ client.once(Events.ClientReady, (readyClient) => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
-    if (!interaction.isChatInputCommand()) {
-        return;
-    }
+    const runInteraction = async () => {
+        if (isReady) {
+            if (!interaction.isChatInputCommand()) {
+                return;
+            }
 
-    const command = (interaction.client as CustomClient).commands.get(
-        interaction.commandName
-    );
-    if (!command) {
-        console.error(
-            `No command matching ${interaction.commandName} was found.`
-        );
-        return;
-    }
+            const command = (interaction.client as CustomClient).commands.get(
+                interaction.commandName
+            );
+            if (!command) {
+                console.error(
+                    `No command matching ${interaction.commandName} was found.`
+                );
+                return;
+            }
 
-    try {
-        await command.execute(interaction);
-    } catch (err) {
-        console.error(err);
-        if (interaction.replied || interaction.deferred) {
-            await interaction.followUp({
-                content: "There was an error while executing this command!",
-                ephemeral: true,
-            });
+            try {
+                await command.execute(interaction);
+            } catch (err) {
+                console.error(err);
+                if (interaction.replied || interaction.deferred) {
+                    await interaction.followUp({
+                        content:
+                            "There was an error while executing this command!",
+                        ephemeral: true,
+                    });
+                } else {
+                    await interaction.reply({
+                        content:
+                            "There was an error while executing this command!",
+                        ephemeral: true,
+                    });
+                }
+            }
         } else {
-            await interaction.reply({
-                content: "There was an error while executing this command!",
-                ephemeral: true,
-            });
+            setTimeout(runInteraction, 5000);
         }
-    }
+    };
+    runInteraction();
 });
 
 client.on(
@@ -344,13 +355,11 @@ client.on(
     async (
         guildScheduledEvent: GuildScheduledEvent<GuildScheduledEventStatus>
     ): Promise<void> => {
-        let count = 0;
         const createEvent = () => {
             if (isReady) {
                 console.log("event created");
                 onCreateEvent(guildScheduledEvent);
-            } else if (count !== 6) {
-                count++;
+            } else {
                 setTimeout(createEvent, 5000);
             }
         };
@@ -365,7 +374,6 @@ client.on(
             | GuildScheduledEvent<GuildScheduledEventStatus>
             | PartialGuildScheduledEvent
     ): Promise<void> => {
-        let count = 0;
         const deleteEvent = () => {
             console.log(isReady);
             if (isReady) {
@@ -383,8 +391,7 @@ client.on(
                         })
                         .catch(console.error);
                 }
-            } else if (count !== 6) {
-                count++;
+            } else {
                 setTimeout(deleteEvent, 5000);
             }
         };
@@ -400,7 +407,6 @@ client.on(
             | PartialGuildScheduledEvent,
         newGuildScheduledEvent: GuildScheduledEvent
     ): Promise<void> => {
-        let count = 0;
         const updateEvent = () => {
             if (isReady) {
                 if (
@@ -446,8 +452,7 @@ client.on(
                             .catch(console.error);
                     }
                 }
-            } else if (count !== 6) {
-                count++;
+            } else {
                 setTimeout(updateEvent, 5000);
             }
         };
@@ -467,7 +472,6 @@ client.on(
             | PartialGuildScheduledEvent,
         user: User
     ): void => {
-        let count = 0;
         const userAdd = () => {
             if (isReady) {
                 if (eventsRoles.get(guildScheduledEvent.id)) {
@@ -486,8 +490,7 @@ client.on(
                         )
                         .catch(console.error);
                 }
-            } else if (count !== 6) {
-                count++;
+            } else {
                 setTimeout(userAdd, 5000);
             }
         };
@@ -503,7 +506,6 @@ client.on(
             | PartialGuildScheduledEvent,
         user: User
     ): void => {
-        let count = 0;
         const userRemove = () => {
             if (isReady) {
                 if (eventsRoles.get(guildScheduledEvent.id)) {
@@ -522,8 +524,7 @@ client.on(
                         )
                         .catch(console.error);
                 }
-            } else if (count !== 6) {
-                count++;
+            } else {
                 setTimeout(userRemove, 5000);
             }
         };
