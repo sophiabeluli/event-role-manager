@@ -122,6 +122,7 @@ const RemindMe: Command = {
                 pubsub.publish("remindme", data);
                 await interaction.reply({
                     embeds: [page],
+                    ephemeral: true,
                 });
             } else {
                 await interaction.reply({
@@ -134,6 +135,7 @@ const RemindMe: Command = {
             pubsub.publish("remindme", data);
             await interaction.reply({
                 embeds: [page],
+                ephemeral: true,
             });
         }
     },
