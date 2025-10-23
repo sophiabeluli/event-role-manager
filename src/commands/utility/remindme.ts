@@ -58,19 +58,25 @@ const RemindMe: Command = {
         const userId = interaction.user.id;
         const message = interaction.options.getString("message");
         const hours = interaction.options.getNumber("hours") ?? 1;
-        const channel =
-            (interaction.options.getChannel(
-                "channel"
-            ) as GuildTextBasedChannel) ?? interaction.channel;
+        let channelInput = interaction.options.getChannel(
+            "channel"
+        ) as GuildTextBasedChannel;
+        const channel = channelInput ?? interaction.channel;
+
+        // console.log(channelInput.isSendable());
+        // interaction.guild.channels
+        //     .fetch()
+        //     .then((allchannels) => {
+        //         allchannels.forEach((channel) => {
+        //             console.log(channel.name);
+        //             console.log(channel.isSendable());
+        //         });
+        //     })
+        //     .catch(console.error);
 
         const data: RemindMeData = { userId, message, hours, channel };
-
-        pubsub.publish("remindme", data);
-
         const page: APIEmbed = {
             title: "Reminder Set",
-            // description: event.description,
-            // .setThumbnail(event.imageURL)
             fields: [
                 {
                     name: "User",
@@ -91,9 +97,31 @@ const RemindMe: Command = {
             ],
         };
 
-        await interaction.reply({
-            embeds: [page],
-        });
+        // if the channel inputted is not accessible to the bot, send error to the user
+        if (channelInput) {
+            const me = await interaction.guild.members.fetchMe();
+            if (
+                channelInput
+                    .permissionsFor(me)
+                    .has(["0x0000000000000800", "0x0000000000000400"]) // send messages, view channel
+            ) {
+                pubsub.publish("remindme", data);
+                await interaction.reply({
+                    embeds: [page],
+                });
+            } else {
+                await interaction.reply({
+                    content: "I don't have access to that channel. Sorry :(",
+                    ephemeral: true,
+                });
+                return;
+            }
+        } else {
+            pubsub.publish("remindme", data);
+            await interaction.reply({
+                embeds: [page],
+            });
+        }
     },
 };
 export default RemindMe;
