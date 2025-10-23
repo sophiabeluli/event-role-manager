@@ -77,6 +77,13 @@ const RemindMe: Command = {
                 )
                 // Ensure the user can only select a TextChannel for output
                 .addChannelTypes(ChannelType.GuildText)
+        )
+        .addBooleanOption((option) =>
+            option
+                .setName("ephemeral")
+                .setDescription(
+                    "Whether the confirmation message can only be seen by you (true) or everyone (false). Default: true"
+                )
         ),
     async execute(interaction: ChatInputCommandInteraction) {
         const userId = interaction.user.id;
@@ -87,6 +94,7 @@ const RemindMe: Command = {
             "channel"
         ) as GuildTextBasedChannel;
         const channel = channelInput ?? interaction.channel;
+        const ephemeral = interaction.options.getBoolean("ephemeral") ?? true;
 
         const data: RemindMeData = { userId, message, timeMult, time, channel };
         const page: APIEmbed = {
@@ -122,7 +130,7 @@ const RemindMe: Command = {
                 pubsub.publish("remindme", data);
                 await interaction.reply({
                     embeds: [page],
-                    ephemeral: true,
+                    ephemeral: ephemeral,
                 });
             } else {
                 await interaction.reply({
@@ -135,7 +143,7 @@ const RemindMe: Command = {
             pubsub.publish("remindme", data);
             await interaction.reply({
                 embeds: [page],
-                ephemeral: true,
+                ephemeral: ephemeral,
             });
         }
     },
